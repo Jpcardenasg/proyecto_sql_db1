@@ -2,281 +2,6 @@
 
 Creación de la primera base de datos del proyecto SQL
 
-## DATA DEFINITION LANGUAJE (DDL)
-```sql
-CREATE TABLE producto (
-    codigo_producto VARCHAR(15) PRIMARY KEY UNIQUE,
-    nombre VARCHAR(70),
-    id_gama VARCHAR(50),
-    id_dimensiones VARCHAR(25),
-    id_proveedor VARCHAR(50) NULL,
-    descripcion TEXT NULL,
-    cantidad_en_stock SMALLINT(6),
-    precio_venta DECIMAL(15, 2),
-    precio_proveedor DECIMAL(15, 2),
-    FOREIGN KEY (id_gama) REFERENCES gama_producto(gama),
-    FOREIGN KEY (id_dimensiones) REFERENCES dimensiones(id_dimensiones),
-    FOREIGN KEY (id_proveedor) REFERENCES proveedor(id_proveedor)
-);
-
-CREATE TABLE gama_producto (
-    gama VARCHAR(50) PRIMARY KEY UNIQUE,
-    descripcion_texto TEXT,
-    descripcion_html TEXT,
-    imagen VARCHAR(256)
-);
-
-CREATE TABLE dimensiones (
-    id_dimensiones VARCHAR(15) PRIMARY KEY UNIQUE,
-    ancho DECIMAL(5, 2) NULL,
-    alto DECIMAL(5, 2) NULL,
-    profundo INTEGER NULL,
-    diametro DECIMAL(5, 2) NULL
-);
-
-CREATE TABLE detalle_pedido (
-    codigo_pedido INT(11),
-    codigo_producto VARCHAR(15),
-    cantidad INT(11),
-    precio_unidad DECIMAL(15, 2),
-    numero_linea SMALLINT(6),
-    PRIMARY KEY (codigo_pedido, codigo_producto),
-    FOREIGN KEY (codigo_pedido) REFERENCES pedido(codigo_pedido),
-    FOREIGN KEY (codigo_producto) REFERENCES producto(codigo_producto)
-);
-
-CREATE TABLE pedido (
-    codigo_pedido INT(11) PRIMARY KEY UNIQUE,
-    fecha_pedido DATE,
-    fecha_esperada DATE,
-    fecha_entrega DATE NULL,
-    estado VARCHAR(15),
-    comentarios TEXT NULL,
-    codigo_cliente INT(11),
-    FOREIGN KEY (codigo_cliente) REFERENCES cliente(codigo_cliente)
-);
-
-CREATE TABLE cliente (
-    codigo_cliente INT(11) AUTO_INCREMENT PRIMARY KEY UNIQUE,
-    nombre_cliente VARCHAR(50),
-    id_contacto INT(11),
-    id_direccion INT(11),
-    codigo_empleado INT(11) NULL,
-    limite_credito DECIMAL(15, 2),
-    FOREIGN KEY (id_contacto) REFERENCES contacto(id_contacto),
-    FOREIGN KEY (id_direccion) REFERENCES direccion(id_direccion),
-    FOREIGN KEY (codigo_empleado) REFERENCES empleado(codigo_empleado)
-);
-
-CREATE TABLE proveedor (
-    id_proveedor VARCHAR(50) PRIMARY KEY,
-    nombre_proveedor VARCHAR(50),
-    id_contacto INT(11),
-    id_direccion INT(11),
-    FOREIGN KEY (id_contacto) REFERENCES contacto(id_contacto),
-    FOREIGN KEY (id_direccion) REFERENCES direccion(id_direccion),
-);
-
-CREATE TABLE contacto (
-    id_contacto INT(11) PRIMARY KEY,
-    nombre_contacto VARCHAR(30) NULL,
-    apellido_contacto VARCHAR(30) NULL,
-    telefono VARCHAR(15),
-    fax VARCHAR(15)
-);
-
-CREATE TABLE pago (
-    id_transaccion VARCHAR(50),
-    codigo_cliente INT(11),
-    forma_pago VARCHAR(40),
-    fecha_pago DATE,
-    total DECIMAL(15, 2),
-    PRIMARY KEY (id_transaccion),
-    FOREIGN KEY (codigo_cliente) REFERENCES cliente(codigo_cliente)
-);
-
-CREATE TABLE pais(
-    id_pais INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL
-    );
-
-CREATE TABLE region(
-    id_region INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    id_pais INT(11) NOT NULL,
-    CONSTRAINT FK_region_pais FOREIGN KEY (id_pais) REFERENCES pais(id_pais));
-
-CREATE TABLE ciudad(
-    id_ciudad INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    id_region INT(11) NOT NULL,
-    CONSTRAINT FK_ciudad_region FOREIGN KEY (id_region) REFERENCES region(id_region)
-);
-
-CREATE TABLE direccion(
-    id_direccion INT(11) PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    linea_direccion1 VARCHAR(50) NOT NULL,
-    linea_direccion2 VARCHAR(50),
-    barrio VARCHAR(100) NOT NULL,
-    codigo_postal VARCHAR(10),
-    id_ciudad INT(11) NOT NULL,
-    CONSTRAINT FK_direccion_ciudad FOREIGN KEY(id_ciudad) REFERENCES ciudad(id_ciudad)
-);
-
-CREATE TABLE empleado (
-    codigo_empleado INT(11) PRIMARY KEY UNIQUE,
-    nombre_empleado VARCHAR(50),
-    apellido_empleado1 VARCHAR(50),
-    apellido_empleado2 VARCHAR(50) NULL,
-    extension VARCHAR(10),
-    email VARCHAR(100),
-    puesto VARCHAR(50) NULL,
-    codigo_jefe INT(11) NULL,
-    CONSTRAINT FK_empleado_jefe FOREIGN KEY (codigo_jefe) REFERENCES empleado(codigo_empleado),
-    codigo_oficina VARCHAR(10),
-    CONSTRAINT FK_empleado_oficina FOREIGN KEY (codigo_oficina) REFERENCES oficina(codigo_oficina)
-);
-
-CREATE TABLE oficina (
-    codigo_oficina INT(11) NOT NULL AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    telefono VARCHAR(20),
-    id_direccion INT,
-    PRIMARY KEY (codigo_oficina),
-    CONSTRAINT FK_direccion_oficina FOREIGN KEY (id_direccion) REFERENCES direccion(id_direccion)
-);
-```
-
-## DATA MANIPULATION LANGUAJE (DML)
-```sql
--- Países
-INSERT INTO pais (nombre) VALUES 
-    ('Estados Unidos'), ('Canadá'), ('México'), ('Brasil'), ('Argentina'), ('Chile'), ('España');
-
--- Regiones
-INSERT INTO region (nombre, id_pais) VALUES 
-    ('California', 1),
-    ('Quebec', 2),
-    ('Jalisco', 3),
-    ('São Paulo', 4),
-    ('Buenos Aires', 5),
-    ('Santiago', 6),
-    ('Comunidad de Madrid', 7);
-
--- Ciudades
-INSERT INTO ciudad (nombre, id_region) VALUES 
-    ('Los Angeles', 1),
-    ('Montreal', 2),
-    ('Guadalajara', 3),
-    ('São Paulo', 4),
-    ('Buenos Aires', 5),
-    ('Santiago', 6),
-    ('Madrid', 7);
-
--- Direcciones
-INSERT INTO direccion (linea_direccion1, barrio, id_ciudad) VALUES 
-    ('123 Hollywood Blvd', 'Hollywood', 1),
-    ('456 Maple Street', 'Downtown', 2),
-    ('789 Pine Ave', 'Centro', 3),
-    ('1011 Banana Blvd', 'Market', 4),
-    ('1213 Apple Ave', 'North Side', 5),
-    ('1415 Orange Street', 'South Side', 6),
-    ('Calle Gran Vía, 1', 'Centro', 7);
-
--- Gama de productos
-INSERT INTO gama_producto (gama, descripcion_texto, descripcion_html, imagen) VALUES 
-    ('Electrónica', 'Dispositivos y gadgets electrónicos.', '<p>Dispositivos y gadgets electrónicos.</p>', 'electronica.jpg'),
-    ('Hogar', 'Artículos para el hogar.', '<p>Artículos para el hogar.</p>', 'hogar.jpg'),
-    ('Jardinería', 'Herramientas y decoraciones para jardín.', '<p>Herramientas y decoraciones para jardín.</p>', 'jardineria.jpg'),
-    ('Deporte', 'Equipamiento deportivo.', '<p>Equipamiento deportivo.</p>', 'deporte.jpg'),
-    ('Moda', 'Ropa y accesorios de moda.', '<p>Ropa y accesorios de moda.</p>', 'moda.jpg'),
-    ('Juguetes', 'Juguetes para todas las edades.', '<p>Juguetes para todas las edades.</p>', 'juguetes.jpg');
-
--- Dimensiones
-INSERT INTO dimensiones (id_dimensiones, ancho, alto, profundo) VALUES 
-    ('D001', 30.00, 40.00, 15),
-    ('D002', 50.00, 60.00, 20),
-    ('D003', 10.00, 20.00, 5),
-    ('D004', 100.00, 200.00, 50),
-    ('D005', 5.00, 10.00, 2),
-    ('D006', 120.00, 130.00, 100);
-
--- Productos
-INSERT INTO producto (codigo_producto, nombre, id_gama, id_dimensiones, descripcion, cantidad_en_stock, precio_venta, precio_proveedor) VALUES 
-    ('P001', 'Teléfono Inteligente', 'Electrónica', 'D001', 'Último modelo con cámara HD.', 100, 500.00, 300.00),
-    ('P002', 'Laptop ProMax', 'Electrónica', 'D002', 'Alta capacidad y rendimiento.', 50, 1200.00, 800.00),
-    ('P003', 'Blender Turbo', 'Hogar', 'D003', 'Licuadora de alta velocidad.', 150, 99.99, 60.00),
-    ('P004', 'Set de Jardinería', 'Jardinería', 'D004', 'Todo lo necesario para el cuidado del jardín.', 200, 80.00, 40.00),
-    ('P005', 'Pelota de Fútbol', 'Deporte', 'D005', 'Pelota oficial tamaño y peso.', 300, 25.00, 15.00),
-    ('P006', 'Conjunto de Ropa', 'Moda', 'D006', 'Incluye camisa, pantalón y accesorios.', 150, 100.00, 50.00);
-
--- Contactos
-INSERT INTO contacto (id_contacto, telefono, fax, nombre_contacto, apellido_contacto) VALUES 
-    (1, '2345678901', '1098765432', 'José', 'Ramírez'),
-    (2, '3456789012', '2109876543', 'Carlos', 'Gomez'),
-    (3, '4567890123', '3210987654', 'Marie', 'Dupon'),
-    (4, '5678901234', '4321098765', 'Luigi', 'Rossi'),
-    (5, '6789012345', '5432109876', 'John', 'Smith'),
-    (6, '7890123456', '6543210987', 'Sara', 'Johnson');
-
--- Oficinas
-INSERT INTO oficina (nombre, telefono, id_direccion) VALUES 
-    ('Oficina Central', '1234567890', 1),
-    ('Oficina Regional', '2345678901', 2),
-    ('Oficina Norte', '3456789012', 3),
-    ('Oficina Sur', '4567890123', 4),
-    ('Oficina Este', '5678901234', 5),
-    ('Oficina_direccion Oeste', '6789012345', 6),
-    ('Oficina Madrid', '910203040', 7);
-
--- Empleados
-INSERT INTO empleado (codigo_empleado, nombre_empleado, apellido_empleado1, extension, email, codigo_oficina, codigo_jefe, puesto) VALUES 
-    (1, 'Juan', 'Pérez', '1234', 'juan.perez@empresa.com', 1, 12, 'Gerente'),
-    (2, 'Luisa', 'Martínez', '5678', 'luisa.martinez@empresa.com', 2, 123, 'Secretaria'),
-    (3, 'Carlos', 'Gomez', '9012', 'carlos.gomez@empresa.com', 3, 1234 , 'Coordinador'),
-    (4, 'María', 'Garcia', '3456', 'maria.garcia@empresa.com', 4), 12345, 'Directora',
-    (5, 'Ana', 'Lopez', '7890', 'ana.lopez@empresa.com', 5, 123456, 'Asistente'),
-    (6, 'Miguel', 'Hernández', '1234', 'miguel.hernandez@empresa.com', 6, 123456, 'Asistente'),
-    (7, 'Andrés', 'Arenas', '3741', 'andres.arenas@empresa.com', 7, 7, 'Coordinador');
-
--- Clientes
-INSERT INTO cliente (nombre_cliente, id_contacto, id_direccion, codigo_empleado, limite_credito) VALUES 
-    ('Cliente 1', 1, 1, 1, 1000.00),
-    ('Cliente 2', 2, 2, 2, 2000.00),
-    ('Cliente 3', 3, 3, 3, 3000.00),
-    ('Cliente 4', 4, 4, 4, 4000.00),
-    ('Cliente 5', 5, 5, 5, 5000.00),
-    ('Cliente 6', 6, 6, 6, 6000.00);
-
--- Pedidos
-INSERT INTO pedido (codigo_pedido, fecha_pedido, fecha_esperada, estado, codigo_cliente) VALUES 
-    (1001, '2024-04-21', '2024-04-28', 'Enviado', 1),
-    (1002, '2024-04-21', '2024-04-28', 'Enviado', 2),
-    (1003, '2024-04-22', '2024-04-29', 'Cancelado', 3),
-    (1004, '2024-04-23', '2024-04-30', 'Pendiente', 4),
-    (1005, '2024-04-24', '2024-05-01', 'Enviado', 5),
-    (1006, '2024-04-25', '2024-05-02', 'Cancelado', 6);
-
--- Detalles de pedido
-INSERT INTO detalle_pedido (codigo_pedido, codigo_producto, cantidad, precio_unidad, numero_linea) VALUES 
-    (1001, 'P001', 2, 500.00, 1),
-    (1002, 'P002', 1, 1200.00, 1),
-    (1003, 'P003', 3, 99.99, 1),
-    (1004, 'P004', 5, 80.00, 1),
-    (1005, 'P005', 10, 25.00, 1),
-    (1006, 'P006', 4, 100.00, 1);
-
--- Pagos
-INSERT INTO pago (id_transaccion, codigo_cliente, forma_pago, fecha_pago, total) VALUES 
-    ('T001', 1, 'Tarjeta de crédito', '2024-04-21', 1000.00),
-    ('T002', 2, 'Efectivo', '2024-04-21', 1200.00),
-    ('T003', 3, 'Tarjeta de crédito', '2024-04-22', 299.97),
-    ('T004', 4, 'Efectivo', '2024-04-23', 400.00),
-    ('T005', 5, 'Cheque', '2024-04-24', 250.00),
-    ('T006', 6, 'Transferencia', '2024-04-25', 400.00);
-
-```
-
 ## **CONSULTAS**
 
 1. Devuelve un listado con el código de oficina y la ciudad donde hay oficinas.
@@ -728,4 +453,203 @@ INNER JOIN producto p ON dp.codigo_producto = p.codigo_producto;
 | Cliente 5      | Deporte      |
 | Cliente 6      | Moda         |
 +----------------+--------------+
+```
+
+## Procedimientos
+1. Actualizar producto.
+```sql
+CREATE PROCEDURE actualizar_producto(
+    IN codigo_producto_param VARCHAR(15),
+    IN nombre_param VARCHAR(70),
+    IN id_gama_param VARCHAR(50),
+    IN id_dimensiones_param VARCHAR(25),
+    IN id_proveedor_param VARCHAR(50),
+    IN descripcion_param TEXT,
+    IN cantidad_en_stock_param SMALLINT(6),
+    IN precio_venta_param DECIMAL(15, 2),
+    IN precio_proveedor_param DECIMAL(15, 2)
+)
+BEGIN
+    UPDATE producto
+    SET nombre = nombre_param,
+        id_gama = id_gama_param,
+        id_dimensiones = id_dimensiones_param,
+        id_proveedor = id_proveedor_param,
+        descripcion = descripcion_param,
+        cantidad_en_stock = cantidad_en_stock_param,
+        precio_venta = precio_venta_param,
+        precio_proveedor = precio_proveedor_param
+    WHERE codigo_producto = codigo_producto_param;
+END;
+```
+2. Crear nueva gama de producto.
+```sql
+CREATE PROCEDURE crear_gama_producto(
+    IN gama_param VARCHAR(50),
+    IN descripcion_texto_param TEXT,
+    IN descripcion_html_param TEXT,
+    IN imagen_param VARCHAR(256)
+)
+BEGIN
+    INSERT INTO gama_producto (gama, descripcion_texto, descripcion_html, imagen)
+    VALUES (gama_param, descripcion_texto_param, descripcion_html_param, imagen_param);
+END;
+```
+3. Eliminar cliente.
+```sql
+CREATE PROCEDURE eliminar_cliente(
+    IN codigo_cliente_param INT(11)
+)
+BEGIN
+    DELETE FROM cliente WHERE codigo_cliente = codigo_cliente_param;
+    DELETE FROM contacto WHERE id_contacto IN (SELECT id_contacto FROM cliente WHERE codigo_cliente = codigo_cliente_param);
+    DELETE FROM direccion WHERE id_direccion IN (SELECT id_direccion FROM cliente WHERE codigo_cliente = codigo_cliente_param);
+END;
+```
+4. Buscar pedidos por cliente.
+```sql
+CREATE PROCEDURE buscar_pedidos_por_cliente(
+    IN codigo_cliente_param INT(11)
+)
+BEGIN
+    SELECT *
+    FROM pedido
+    WHERE codigo_cliente = codigo_cliente_param;
+END;
+```
+5. Actualizar pago.
+```sql
+CREATE PROCEDURE actualizar_pago(
+    IN id_transaccion_param VARCHAR(50),
+    IN codigo_cliente_param INT(11),
+    IN forma_pago_param VARCHAR(40),
+    IN fecha_pago_param DATE,
+    IN total_param DECIMAL(15, 2)
+)
+BEGIN
+    UPDATE pago
+    SET codigo_cliente = codigo_cliente_param,
+        forma_pago = forma_pago_param,
+        fecha_pago = fecha_pago_param,
+        total = total_param
+    WHERE id_transaccion = id_transaccion_param;
+END;
+```
+6. Crear nuevo país.
+```sql
+CREATE PROCEDURE crear_pais(
+    IN nombre_param VARCHAR(100)
+)
+BEGIN
+    INSERT INTO pais (nombre)
+    VALUES (nombre_param);
+END;
+```
+7. Eliminar empleado.
+```sql
+CREATE PROCEDURE eliminar_empleado(
+    IN codigo_empleado_param INT(11)
+)
+BEGIN
+    DELETE FROM empleado WHERE codigo_empleado = codigo_empleado_param;
+END;
+```
+8. Buscar productos en stock.
+```sql
+CREATE PROCEDURE buscar_productos_en_stock()
+BEGIN
+    SELECT *
+    FROM producto
+    WHERE cantidad_en_stock > 0;
+END;
+```
+9. Crear nueva región.
+```sql
+CREATE PROCEDURE crear_region(
+    IN nombre_param VARCHAR(100),
+    IN id_pais_param INT(11)
+)
+BEGIN
+    INSERT INTO region (nombre, id_pais)
+    VALUES (nombre_param, id_pais_param);
+END;
+```
+10. Eliminar pedido.
+```sql
+CREATE PROCEDURE eliminar_pedido(
+    IN codigo_pedido_param INT(11)
+)
+BEGIN
+    DELETE FROM pedido WHERE codigo_pedido = codigo_pedido_param;
+END;
+```
+## Vistas
+1. Vista de Productos con Detalles de Proveedor.
+```sql
+CREATE VIEW vista_productos_con_proveedor AS
+SELECT p.*, pr.nombre_proveedor
+FROM producto p
+LEFT JOIN proveedor pr ON p.id_proveedor = pr.id_proveedor;
+```
+2. Vista de Pedidos Pendientes.
+```sql
+CREATE VIEW vista_pedidos_pendientes AS
+SELECT *
+FROM pedido
+WHERE estado = 'pendiente';
+```
+3. Vista de Clientes con Información de Contacto.
+```sql
+CREATE VIEW vista_clientes_con_contacto AS
+SELECT c.*, con.telefono, con.fax
+FROM cliente c
+LEFT JOIN contacto con ON c.id_contacto = con.id_contacto;
+```
+4. Vista de Detalles de Pedido con Productos.
+```sql
+CREATE VIEW vista_detalles_pedido_con_productos AS
+SELECT dp.*, p.nombre
+FROM detalle_pedido dp
+LEFT JOIN producto p ON dp.codigo_producto = p.codigo_producto;
+```
+5. Vista de Empleados con Información de Oficina.
+```sql
+CREATE VIEW vista_empleados_con_oficina AS
+SELECT e.*, of.nombre AS nombre_oficina, of.telefono AS telefono_oficina
+FROM empleado e
+LEFT JOIN oficina of ON e.codigo_oficina = of.codigo_oficina;
+```
+6. Vista de Pagos Recientes.
+```sql
+CREATE VIEW vista_pagos_recientes AS
+SELECT *
+FROM pago
+WHERE fecha_pago >= DATE_SUB(NOW(), INTERVAL 1 MONTH);
+```
+7. Vista de Dimensiones de Productos.
+```sql
+CREATE VIEW vista_dimensiones_producto AS
+SELECT id_dimensiones, ancho, alto, profundo, diametro
+FROM dimensiones;
+```
+8. Vista de Regiones con Países.
+```sql
+CREATE VIEW vista_regiones_con_paises AS
+SELECT r.*, p.nombre AS nombre_pais
+FROM region r
+LEFT JOIN pais p ON r.id_pais = p.id_pais;
+```
+9. Vista de Ciudades con Regiones.
+```sql
+CREATE VIEW vista_ciudades_con_regiones AS
+SELECT c.*, r.nombre AS nombre_region
+FROM ciudad c
+LEFT JOIN region r ON c.id_region = r.id_region;
+```
+10. Vista de Gamas de Productos con Descripciones.
+```sql
+CREATE VIEW vista_gamas_con_descripciones AS
+SELECT g.*, d.descripcion_texto
+FROM gama_producto g
+LEFT JOIN descripcion d ON g.gama = d.gama;
 ```
